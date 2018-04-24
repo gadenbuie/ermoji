@@ -20,6 +20,9 @@ Install **ermoji** with [devtools](https://github.com/r-lib/devtools)
 devtools::install_github("gadenbuie/ermoji")
 ```
 
+Or install using Dean Attali’s
+[addinlist](https://github.com/daattali/addinslist).
+
 ## Usage
 
 Open *Search and Copy Emoji* from the RStudio Addins dropdown.
@@ -53,3 +56,24 @@ Search inside individual columns for more specific emoji
 finding.
 
 <img src="inst/example-column-search.png" width="400px" style="border: solid 1px black">
+
+-----
+
+**ermoji** was built by [Garrick
+Aden-Buie](https://www.garrickadenbuie.com)
+([@grrrck](https://twitter.com/grrrck)).
+
+Built on the shoulders of giants. Thanks to Hadley Wickham for
+[emo](https://github.com/hadley/emo), Yihui Xie and RStudio for
+[DT](https://rstudio.github.io/DT), Matthew Lincoln for
+[clipr](https://github.com/mdlincoln/clipr). Thanks to
+[r-lib](https://github.com/r-lib) for `devtools` and `usethis` — from
+idea to package in 60 minutes.
+
+Find more great RStudio addins on the
+[addinlist](https://github.com/daattali/addinslist), like my other addin
+[regexplain](https://github.com/gadenbuie/regexplain).
+
+Feel free to [file an issue](https://github.com/gadenbuie/ermoji/issues)
+if you find a bug or have a theme suggestion – or better yet, submit a
+pull request\!
