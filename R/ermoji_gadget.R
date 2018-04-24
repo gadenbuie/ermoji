@@ -55,8 +55,8 @@ ermoji_gadget <- function() {
     })
 
     this_emoji_name <- reactive({
-      name <- this_emoji()$name
-      if (grepl(":", name)) name <- this_emoji()$aliases[[1]][1]
+      # name <- this_emoji()$name
+      name <- this_emoji()$aliases[[1]][1]
       paste0(":", gsub(" ", "_", name), ":")
     })
 
