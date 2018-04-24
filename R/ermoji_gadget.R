@@ -99,6 +99,6 @@ ermoji_gadget <- function() {
     })
   }
 
-  runGadget(ui, server, viewer = paneViewer(500))
+  runGadget(ui, server, viewer = paneViewer(500), stopOnCancel = FALSE)
 }
 
