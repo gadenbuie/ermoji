@@ -1,0 +1,4 @@
+Name: Search and Copy Emoji
+Description: Search for emoji and copy name, unicode, or gliph.
+Binding: ermoji_gadget
+Interactive: true
