@@ -34,7 +34,7 @@ ermoji_ui <- function() {
   )
 }
 
-ermoji_server <- function(input, output, session) {
+ermoji_server <- function(input, output, session, clipout = clipr::clipr_available()) {
   output$emojis <- DT::renderDataTable({
     emojis <- emo::jis
     emojis <- emojis[, c('emoji', 'name', "group", "keywords", "aliases")]
@@ -94,14 +94,24 @@ ermoji_server <- function(input, output, session) {
       updateActionButton(session, "copy_gliph", paste("Copy", this_emoji()$emoji))
     }
   })
+  copy_modal <- function(text) {
+    showModal(
+      modalDialog(
+        title = "Select and Copy",
+        tags$p("I don't have access to your clipboard. Select the text and", tags$kbd("Ctrl/Cmd"), "+", tags$kbd("c"), "to copy."),
+        tags$pre(text),
+        easyClose = TRUE
+      )
+    )
+  }
   observeEvent(input$copy_name, {
-    clipr::write_clip(this_emoji_name())
+    if (clipout) clipr::write_clip(this_emoji_name()) else copy_modal(this_emoji_name())
   })
   observeEvent(input$copy_utf, {
-    clipr::write_clip(this_emoji_uni())
+    if (clipout) clipr::write_clip(this_emoji_uni()) else copy_modal(this_emoji_uni())
   })
   observeEvent(input$copy_gliph, {
-    clipr::write_clip(this_emoji()$emoji)
+    if (clipout) clipr::write_clip(this_emoji()$emoji) else copy_modal(this_emoji()$emoji)
   })
   observeEvent(input$done, {
     stopApp(invisible())
