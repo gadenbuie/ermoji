@@ -75,5 +75,4 @@ Find more great RStudio addins on the
 [regexplain](https://github.com/gadenbuie/regexplain).
 
 Feel free to [file an issue](https://github.com/gadenbuie/ermoji/issues)
-if you find a bug or have a theme suggestion – or better yet, submit a
-pull request\!
+if you find a bug – or better yet, submit a pull request\!
