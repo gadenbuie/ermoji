@@ -1,26 +1,54 @@
 #' The ermoji emoji gadget
 #'
 #' Opens a miniUI based Shiny gadget in the RStudio Viewer pane with a
-#' searchable table of emoji. Select a row and click the copy button.
+#' searchable table of emoji. Select a row and click the copy desired button.
 #'
+#' @param clipout Should the gadget attempt to write to the clipboard?
+#' @param ... Ignored at this time
+#' @name ermoji
 #' @return nothing
 #' @export
-ermoji_gadget <- function() {
+ermoji_gadget <- function(clipout = clipr::clipr_available(), ...) {
   require(shiny)
   require(miniUI)
-  runGadget(ermoji_ui(), ermoji_server, viewer = paneViewer(500), stopOnCancel = FALSE)
+  runGadget(ermoji_ui, ermoji_server(clipout, ...), viewer = paneViewer(500), stopOnCancel = FALSE)
 }
 
-ermoji_shiny <- function() {
+#' @rdname ermoji
+#' @export
+ermoji_shiny <- function(clipout = clipr::clipr_available(), ...) {
   require(shiny)
   require(miniUI)
-  shinyApp(ui = ermoji_ui(), server = ermoji_server)
+  shinyApp(ui = ermoji_ui, server = ermoji_server(clipout, ...))
 }
 
 
-ermoji_ui <- function() {
-  miniPage(
+ermoji_ui <- miniPage(
     title = "ermoji",
+    tags$head(
+      tags$style(
+        HTML("
+        .dropdown-item {
+        	display: block;
+        	width: 100%;
+        	padding: .25rem 1.5rem;
+        	clear: both;
+        	font-weight: 400;
+        	color: #212529;
+        	text-align: inherit;
+        	white-space: nowrap;
+        	background-color: transparent;
+        	border: 0;
+        }
+
+        .dropdown-menu {
+        	color: #212529;
+        	text-align: left;
+        	list-style: none;
+        }
+        ")
+      )
+    ),
     gadgetTitleBar("ermoji"),
     miniContentPanel(
       padding = 10,
@@ -28,95 +56,124 @@ ermoji_ui <- function() {
     ),
     miniButtonBlock(
       actionButton("copy_name", "Copy :emoji_name:", class = "btn-success"),
-      actionButton("copy_utf", "Copy Unicode", class = "btn-warning"),
+      tags$div(class = "btn-group dropup", style = "width: 33%",
+        tags$button(class = "btn btn-warning dropdown-toggle", href = "#",
+                    role = "button", id = "dropdownMenuLink", style = "width: 100%",
+                    "data-toggle" = "dropdown", "aria-haspopup" = "true",
+                    "aria-expanded" = "false",
+                    "Copy Unicode"),
+        tags$div(class = "dropdown-menu", style = "width: 100%",
+                 "aria-labelledby"="dropdownMenuLink",
+          actionLink("copy_utf", "Copy unicode", class = "dropdown-item"),
+          actionLink("copy_html", "Copy HTML", class = "dropdown-item")
+        )
+      ),
       actionButton("copy_gliph", "Copy Emoji", class = "btn-primary")
     )
   )
+
+ermoji_server <- function(clipout = clipr::clipr_available()) {
+  function(input, output, session) {
+    output$emojis <- DT::renderDataTable({
+      emojis <- emo::jis
+      emojis <- emojis[, c('emoji', 'name', "group", "keywords", "aliases")]
+      emojis$keywords <- purrr::map_chr(emojis$keywords, ~ paste(., collapse = ", "))
+      emojis$aliases <- purrr::map_chr(emojis$aliases, ~ paste(., collapse = ", "))
+      DT::datatable(
+        emojis,
+        rownames = FALSE,
+        colnames = c("Emoji", "Name", "Group", "Keywords", "Aliases"),
+        filter = "top",
+        selection = "single",
+        fillContainer = TRUE,
+        # style = 'bootstrap',
+        class = 'compact stripe nowrap hover',
+        options = list(
+          searchHighlight = TRUE,
+          search = list(regex = TRUE, caseInsensitive = FALSE),
+          columnDefs = list(list(
+            className = "dt-center", targets = 0
+          )),
+          pageLength = 10,
+          lengthMenu = c(4, 5, 10)
+        )
+      )
+    })
+
+    this_emoji <- reactive({
+      req(input$emojis_rows_selected)
+      as.list(emo::jis[input$emojis_rows_selected, ])
+    })
+
+    this_emoji_name <- reactive({
+      # name <- this_emoji()$name
+      name <- this_emoji()$aliases[[1]][1]
+      paste0(":", gsub(" ", "_", name), ":")
+    })
+
+    this_emoji_uni <- reactive({
+      uni <- paste0("\\U", this_emoji()$runes)
+      gsub(" ", "\\\\U", uni)
+    })
+
+    this_emoji_html <- reactive({
+      gsub("([0-9A-F]{4,8}) ?", "&#x\\1;", this_emoji()$runes)
+    })
+
+    truncate <- function(x, n = 10) {
+      if (nchar(x) > n) {
+        paste0(strtrim(x, n), "...")
+      } else x
+    }
+
+    observeEvent(input$emojis_rows_selected, {
+      if (!isTruthy(input$emojis_rows_selected)) {
+        updateActionButton(session, "copy_name", "Copy :emoji_name:")
+        updateActionButton(session, "copy_utf", "Copy Unicode")
+        updateActionButton(session, "copy_html", "Copy HTML")
+        updateActionButton(session, "copy_gliph", "Copy Emoji")
+      } else {
+        updateActionButton(session, "copy_name", paste0("Copy <code>", this_emoji_name(), "</code>"))
+        updateActionButton(session, "copy_utf", paste("Copy Unicode: <code>", truncate(this_emoji_uni()), "</code>"))
+        updateActionButton(session, "copy_html", paste("Copy HTML: <code>", escape_html(truncate(this_emoji_html())), "</code>"))
+        updateActionButton(session, "copy_gliph", paste("Copy", this_emoji()$emoji))
+      }
+    })
+    copy_modal <- function(text) {
+      showModal(
+        modalDialog(
+          title = "Select and Copy",
+          tags$p("I don't have access to your clipboard. Select the text and", tags$kbd("Ctrl/Cmd"), "+", tags$kbd("c"), "to copy."),
+          tags$pre(text),
+          easyClose = TRUE
+        )
+      )
+    }
+    observeEvent(input$copy_name, {
+      if (clipout) clipr::write_clip(this_emoji_name()) else copy_modal(this_emoji_name())
+    })
+    observeEvent(input$copy_utf, {
+      if (clipout) clipr::write_clip(this_emoji_uni()) else copy_modal(this_emoji_uni())
+    })
+    observeEvent(input$copy_html, {
+      if (clipout) clipr::write_clip(this_emoji_html()) else copy_modal(this_emoji_html())
+    })
+    observeEvent(input$copy_gliph, {
+      if (clipout) clipr::write_clip(this_emoji()$emoji) else copy_modal(this_emoji()$emoji)
+    })
+    observeEvent(input$done, {
+      stopApp(invisible())
+    })
+    observeEvent(input$cancel, {
+      stopApp(invisible())
+    })
+  }
 }
 
-ermoji_server <- function(input, output, session, clipout = clipr::clipr_available()) {
-  output$emojis <- DT::renderDataTable({
-    emojis <- emo::jis
-    emojis <- emojis[, c('emoji', 'name', "group", "keywords", "aliases")]
-    emojis$keywords <- purrr::map_chr(emojis$keywords, ~ paste(., collapse = ", "))
-    emojis$aliases <- purrr::map_chr(emojis$aliases, ~ paste(., collapse = ", "))
-    DT::datatable(
-      emojis,
-      rownames = FALSE,
-      colnames = c("Emoji", "Name", "Group", "Keywords", "Aliases"),
-      filter = "top",
-      selection = "single",
-      fillContainer = TRUE,
-      # style = 'bootstrap',
-      class = 'compact stripe nowrap hover',
-      options = list(
-        searchHighlight = TRUE,
-        search = list(regex = TRUE, caseInsensitive = FALSE),
-        columnDefs = list(list(
-          className = "dt-center", targets = 0
-        )),
-        pageLength = 10,
-        lengthMenu = c(4, 5, 10)
-      )
-    )
-  })
-
-  this_emoji <- reactive({
-    req(input$emojis_rows_selected)
-    as.list(emo::jis[input$emojis_rows_selected, ])
-  })
-
-  this_emoji_name <- reactive({
-    # name <- this_emoji()$name
-    name <- this_emoji()$aliases[[1]][1]
-    paste0(":", gsub(" ", "_", name), ":")
-  })
-
-  this_emoji_uni <- reactive({
-    uni <- paste0("\\U", this_emoji()$runes)
-    gsub(" ", "\\\\U", uni)
-  })
-
-  this_emoji_uni_trunc <- reactive({
-    uni <- this_emoji()$runes
-    uni <- sub(" .+", "...", uni)
-    paste0("\\U", uni)
-  })
-
-  observeEvent(input$emojis_rows_selected, {
-    if (!isTruthy(input$emojis_rows_selected)) {
-      updateActionButton(session, "copy_name", "Copy :emoji_name:")
-      updateActionButton(session, "copy_utf", "Copy Unicode")
-      updateActionButton(session, "copy_gliph", "Copy Emoji")
-    } else {
-      updateActionButton(session, "copy_name", paste0("Copy <code>", this_emoji_name(), "</code>"))
-      updateActionButton(session, "copy_utf", paste("Copy <code>", this_emoji_uni_trunc(), "</code>"))
-      updateActionButton(session, "copy_gliph", paste("Copy", this_emoji()$emoji))
-    }
-  })
-  copy_modal <- function(text) {
-    showModal(
-      modalDialog(
-        title = "Select and Copy",
-        tags$p("I don't have access to your clipboard. Select the text and", tags$kbd("Ctrl/Cmd"), "+", tags$kbd("c"), "to copy."),
-        tags$pre(text),
-        easyClose = TRUE
-      )
-    )
-  }
-  observeEvent(input$copy_name, {
-    if (clipout) clipr::write_clip(this_emoji_name()) else copy_modal(this_emoji_name())
-  })
-  observeEvent(input$copy_utf, {
-    if (clipout) clipr::write_clip(this_emoji_uni()) else copy_modal(this_emoji_uni())
-  })
-  observeEvent(input$copy_gliph, {
-    if (clipout) clipr::write_clip(this_emoji()$emoji) else copy_modal(this_emoji()$emoji)
-  })
-  observeEvent(input$done, {
-    stopApp(invisible())
-  })
-  observeEvent(input$cancel, {
-    stopApp(invisible())
-  })
+escape_html <- function(x) {
+  x = gsub('&', '&amp;', x)
+  x = gsub('<', '&lt;', x)
+  x = gsub('>', '&gt;', x)
+  x = gsub('"', '&quot;', x)
+  x
 }
