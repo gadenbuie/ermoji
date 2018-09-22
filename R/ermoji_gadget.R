@@ -7,18 +7,16 @@
 #' @param ... Ignored at this time
 #' @name ermoji
 #' @return nothing
+#' @import shiny
+#' @import miniUI
 #' @export
 ermoji_gadget <- function(clipout = clipr::clipr_available(), ...) {
-  require(shiny)
-  require(miniUI)
   runGadget(ermoji_ui, ermoji_server(clipout, ...), viewer = paneViewer(500), stopOnCancel = FALSE)
 }
 
 #' @rdname ermoji
 #' @export
 ermoji_shiny <- function(clipout = clipr::clipr_available(), ...) {
-  require(shiny)
-  require(miniUI)
   shinyApp(ui = ermoji_ui, server = ermoji_server(clipout, ...))
 }
 
@@ -77,8 +75,8 @@ ermoji_server <- function(clipout = clipr::clipr_available()) {
     output$emojis <- DT::renderDataTable({
       emojis <- emo::jis
       emojis <- emojis[, c('emoji', 'name', "group", "keywords", "aliases")]
-      emojis$keywords <- purrr::map_chr(emojis$keywords, ~ paste(., collapse = ", "))
-      emojis$aliases <- purrr::map_chr(emojis$aliases, ~ paste(., collapse = ", "))
+      emojis$keywords <- vapply(emojis$keywords, function(x) paste(x, collapse = ", "), character(1))
+      emojis$aliases <- vapply(emojis$aliases, function(x) paste(x, collapse = ", "), character(1))
       DT::datatable(
         emojis,
         rownames = FALSE,
@@ -117,7 +115,7 @@ ermoji_server <- function(clipout = clipr::clipr_available()) {
     })
 
     this_emoji_html <- reactive({
-      gsub("([0-9A-F]{4,8}) ?", "&#x\\1;", this_emoji()$runes)
+      rune2html(this_emoji()$runes)
     })
 
     truncate <- function(x, n = 10) {
@@ -176,4 +174,8 @@ escape_html <- function(x) {
   x = gsub('>', '&gt;', x)
   x = gsub('"', '&quot;', x)
   x
+}
+
+rune2html <- function(runes) {
+  gsub("([0-9A-F]{4,8}) ?", "&#x\\1;", runes)
 }

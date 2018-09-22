@@ -4,14 +4,13 @@ Title: RStudio Addin to Search and Copy Emoji
 Description: RStudio addin to search through emoji and copy the emoji name, 
     unicode string or gliph to the clipboard.
 Authors@R: "Garrrick Aden-Buie <g.adenbuie@gmail.com> [aut, cre]"
-License: MIT
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 ByteCompile: true
 Imports: 
     emo,
     DT,
-    purrr,
     clipr
 Remotes: hadley/emo
 Depends: 

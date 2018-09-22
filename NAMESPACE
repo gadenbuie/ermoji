@@ -2,3 +2,5 @@
 
 export(ermoji_gadget)
 export(ermoji_shiny)
+import(miniUI)
+import(shiny)
