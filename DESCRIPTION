@@ -1,5 +1,5 @@
 Package: ermoji
-Version: 0.1.1
+Version: 0.1.2
 Title: RStudio Addin to Search and Copy Emoji
 Description: RStudio addin to search through emoji and copy the emoji name, 
     unicode string or gliph to the clipboard.
