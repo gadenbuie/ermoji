@@ -41,31 +41,31 @@ Or install using Dean Attali's [addinlist].
 
 Open *Search and Copy Emoji* from the RStudio Addins dropdown.
 
-<img src="inst/addins-list.png" width="200px">
+<img src="man/figures/addins-list.png" width="200px">
 
 Pick your emoji and use the "Copy" buttons to copy the emoji to your clipboard.
 
 ### Browse the Emoji List
 
-<img src="inst/example-browse.png" width="400px" style="border: solid 1px black">
+<img src="man/figures/example-browse.png" width="400px" style="border: solid 1px black">
 
 ### Search for Emoji
 
 You can use regular expressions to search for any text in the table of emoji.
 
-<img src="inst/example-global-search.png" width="400px" style="border: solid 1px black">
+<img src="man/figures/example-global-search.png" width="400px" style="border: solid 1px black">
 
 ### Search *by Emoji*
 
 You can even search *by emoji* by pasting your emoji into the search field.
 
-<img src="inst/example-emoji-search.png" width="400px" style="border: solid 1px black">
+<img src="man/figures/example-emoji-search.png" width="400px" style="border: solid 1px black">
 
 ### Search in Specific Columns
 
 Search inside individual columns for more specific emoji finding.
 
-<img src="inst/example-column-search.png" width="400px" style="border: solid 1px black">
+<img src="man/figures/example-column-search.png" width="400px" style="border: solid 1px black">
 
 ***
 
