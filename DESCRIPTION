@@ -1,22 +1,23 @@
 Package: ermoji
-Version: 0.1.2
 Title: RStudio Addin to Search and Copy Emoji
-Description: RStudio addin to search through emoji and copy the emoji name, 
-    unicode string or gliph to the clipboard.
-Authors@R: "Garrrick Aden-Buie <g.adenbuie@gmail.com> [aut, cre]"
+Version: 0.1.3
+Authors@R: "Garrrick Aden-Buie <garrick@adenbuie.com> [aut, cre]"
+Description: RStudio addin to search through emoji and copy the
+    emoji name, unicode string or glyph to the clipboard.
 License: MIT + file LICENSE
-Encoding: UTF-8
-LazyData: true
-ByteCompile: true
-Imports: 
-    emo,
-    DT,
-    clipr
-Remotes: hadley/emo
-Depends: 
-    shiny,
-    miniUI
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.1.0
 URL: https://github.com/gadenbuie/ermoji
 BugReports: https://github.com/gadenbuie/ermoji/issues
+Depends: 
+    miniUI,
+    shiny
+Imports: 
+    clipr,
+    DT,
+    emo
+Remotes: 
+    hadley/emo
+ByteCompile: true
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 6.1.0

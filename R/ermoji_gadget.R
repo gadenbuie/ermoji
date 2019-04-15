@@ -38,11 +38,19 @@ ermoji_ui <- miniPage(
         	background-color: transparent;
         	border: 0;
         }
-
         .dropdown-menu {
         	color: #212529;
         	text-align: left;
         	list-style: none;
+        }
+        @media (min-height: 600px) {
+          td.big { font-size: 2em; }
+        }
+        @media (max-height: 599px) {
+          td.big { font-size: 1.5em; }
+        }
+        table.dataTable tbody td {
+          vertical-align: middle;
         }
         ")
       )
@@ -75,6 +83,7 @@ ermoji_server <- function(clipout = clipr::clipr_available()) {
     output$emojis <- DT::renderDataTable({
       emojis <- emo::jis
       emojis <- emojis[, c('emoji', 'name', "group", "keywords", "aliases")]
+      emojis$group <- factor(emojis$group)
       emojis$keywords <- vapply(emojis$keywords, function(x) paste(x, collapse = ", "), character(1))
       emojis$aliases <- vapply(emojis$aliases, function(x) paste(x, collapse = ", "), character(1))
       DT::datatable(
@@ -84,16 +93,24 @@ ermoji_server <- function(clipout = clipr::clipr_available()) {
         filter = "top",
         selection = "single",
         fillContainer = TRUE,
-        # style = 'bootstrap',
-        class = 'compact stripe nowrap hover',
+        style = 'bootstrap',
+        class = 'compact stripe hover',
+        extensions = c("Scroller"),
         options = list(
+          dom = "<'row'<'col-sm-6 col-sm-offset-2 text-center'f>>tir",
           searchHighlight = TRUE,
           search = list(regex = TRUE, caseInsensitive = FALSE),
-          columnDefs = list(list(
-            className = "dt-center", targets = 0
-          )),
-          pageLength = 10,
-          lengthMenu = c(4, 5, 10)
+          autoWidth = FALSE,
+          columnDefs = list(
+            list(
+              className = "dt-center big", searchable = FALSE, width = "10%", targets = 0
+            ),
+            list(width = "20%", targets = c(1, 3, 4)),
+            list(width = "10%", targets = 2)
+          ),
+          deferRender = TRUE,
+          scrollY = 500,
+          scroller = TRUE
         )
       )
     })
