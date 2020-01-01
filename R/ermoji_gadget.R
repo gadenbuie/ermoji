@@ -193,6 +193,29 @@ escape_html <- function(x) {
   x
 }
 
+#' Convert Emoji to HTML
+#'
+#' Uses [emo::ji()] to look up emoji, but return the escaped HTML.
+#'
+#' @param x A search term passed to [emo::ji()] or the result of [emo::ji()].
+#' @param copy Should the result be copied to the clipboard?
+#' @export
+emoji2html <- function(x, copy = clipr::clipr_available()) {
+  emojis <- emo::jis$runes
+  names(emojis) <- emo::jis$emoji
+  if (!inherits(x, "emoji")) {
+    x <- emo::ji(x)
+  }
+  emoji <- emojis[x]
+  emoji_html <- rune2html(unname(emoji))
+  if (copy) {
+    clipr::write_clip(emoji_html)
+    message(emoji_html, " copied to clipboard")
+    return(invisible(emoji_html))
+  }
+  emoji_html
+}
+
 rune2html <- function(runes) {
   gsub("([0-9A-F]{4,8}) ?", "&#x\\1;", runes)
 }
