@@ -36,7 +36,10 @@ emoji_picker_ui <- function() {
     shiny::tags$script(src = "eb/emoji-picker.js", type = "module"),
     shiny::tags$head(
       shiny::tags$script(src = 'eb/he.js'),
-      shiny::tags$style('.emoji-picker__plugin-container { justify-content: space-between; }')
+      shiny::tags$style(
+        '.emoji-picker__plugin-container { justify-content: space-between; }
+        .emoji-picker { border-radius: 0 !important; }'
+      )
     )
   )
 }
@@ -56,8 +59,8 @@ rstudio_style <- function() {
   theme <- rstudioapi::getThemeInfo()
   shiny::tags$style(shiny::HTML(paste0(
     ".emoji-picker {\n",
-    "  --background-color: ", theme$background, ";\n",
-    "  --text-color: ", theme$foreground, ";\n",
+    if (theme$dark) "  --dark-background-color: " else "  --background-color: ", theme$background, ";\n",
+    if (theme$dark) "  --dark-text-color: " else "  --text-color: ", theme$foreground, ";\n",
     "}\n",
     "body { background-color: ", theme$background, "; color: ", theme$foreground, ";}\n",
     "#picker_type {\n",

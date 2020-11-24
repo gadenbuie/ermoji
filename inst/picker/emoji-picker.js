@@ -69,7 +69,11 @@ picker.on('emoji', function(selection) {
 
 picker.togglePicker(document.getElementById('emoji-picker'))
 
-document.querySelector('.emoji-picker__wrapper').addEventListener('keydown', function(ev) {
+const divPicker = document.querySelector('.emoji-picker__wrapper')
+divPicker.style.top = '0'
+divPicker.style.left = '0'
+
+divPicker.addEventListener('keydown', function(ev) {
   if (ev.keyCode === 27) {
     ev.stopPropagation()
     Shiny.setInputValue('close', Date.now())
