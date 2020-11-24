@@ -7,25 +7,23 @@
 #' @param ... Ignored at this time
 #' @name ermoji
 #' @return nothing
-#' @import shiny
-#' @import miniUI
 #' @export
 ermoji_gadget <- function(clipout = clipr::clipr_available(), ...) {
-  runGadget(ermoji_ui, ermoji_server(clipout, ...), viewer = paneViewer(500), stopOnCancel = FALSE)
+  shiny::runGadget(ermoji_ui, ermoji_server(clipout, ...), viewer = shiny::paneViewer(500), stopOnCancel = FALSE)
 }
 
 #' @rdname ermoji
 #' @export
 ermoji_shiny <- function(clipout = clipr::clipr_available(), ...) {
-  shinyApp(ui = ermoji_ui, server = ermoji_server(clipout, ...))
+  shiny::shinyApp(ui = ermoji_ui, server = ermoji_server(clipout, ...))
 }
 
 
-ermoji_ui <- miniPage(
+ermoji_ui <- miniUI::miniPage(
     title = "ermoji",
-    tags$head(
-      tags$style(
-        HTML("
+    shiny::tags$head(
+      shiny::tags$style(
+        shiny::HTML("
         .dropdown-item {
         	display: block;
         	width: 100%;
@@ -55,26 +53,26 @@ ermoji_ui <- miniPage(
         ")
       )
     ),
-    gadgetTitleBar("ermoji"),
-    miniContentPanel(
+    miniUI::gadgetTitleBar("ermoji"),
+    miniUI::miniContentPanel(
       padding = 10,
       DT::dataTableOutput('emojis', height = "100%", width = "98%")
     ),
-    miniButtonBlock(
-      actionButton("copy_name", "Copy :emoji_name:", class = "btn-success"),
-      tags$div(class = "btn-group dropup", style = "width: 33%",
-        tags$button(class = "btn btn-warning dropdown-toggle", href = "#",
+    miniUI::miniButtonBlock(
+      shiny::actionButton("copy_name", "Copy :emoji_name:", class = "btn-success"),
+      shiny::tags$div(class = "btn-group dropup", style = "width: 33%",
+        shiny::tags$button(class = "btn btn-warning dropdown-toggle", href = "#",
                     role = "button", id = "dropdownMenuLink", style = "width: 100%",
                     "data-toggle" = "dropdown", "aria-haspopup" = "true",
                     "aria-expanded" = "false",
                     "Copy Unicode"),
-        tags$div(class = "dropdown-menu", style = "width: 100%",
+        shiny::tags$div(class = "dropdown-menu", style = "width: 100%",
                  "aria-labelledby"="dropdownMenuLink",
-          actionLink("copy_utf", "Copy unicode", class = "dropdown-item"),
-          actionLink("copy_html", "Copy HTML", class = "dropdown-item")
+          shiny::actionLink("copy_utf", "Copy unicode", class = "dropdown-item"),
+          shiny::actionLink("copy_html", "Copy HTML", class = "dropdown-item")
         )
       ),
-      actionButton("copy_gliph", "Copy Emoji", class = "btn-primary")
+      shiny::actionButton("copy_gliph", "Copy Emoji", class = "btn-primary")
     )
   )
 
@@ -115,23 +113,23 @@ ermoji_server <- function(clipout = clipr::clipr_available()) {
       )
     })
 
-    this_emoji <- reactive({
-      req(input$emojis_rows_selected)
+    this_emoji <- shiny::reactive({
+      shiny::req(input$emojis_rows_selected)
       as.list(emo::jis[input$emojis_rows_selected, ])
     })
 
-    this_emoji_name <- reactive({
+    this_emoji_name <- shiny::reactive({
       # name <- this_emoji()$name
       name <- this_emoji()$aliases[[1]][1]
       paste0(":", gsub(" ", "_", name), ":")
     })
 
-    this_emoji_uni <- reactive({
+    this_emoji_uni <- shiny::reactive({
       uni <- paste0("\\U", this_emoji()$runes)
       gsub(" ", "\\\\U", uni)
     })
 
-    this_emoji_html <- reactive({
+    this_emoji_html <- shiny::reactive({
       rune2html(this_emoji()$runes)
     })
 
@@ -141,46 +139,46 @@ ermoji_server <- function(clipout = clipr::clipr_available()) {
       } else x
     }
 
-    observeEvent(input$emojis_rows_selected, {
-      if (!isTruthy(input$emojis_rows_selected)) {
-        updateActionButton(session, "copy_name", "Copy :emoji_name:")
-        updateActionButton(session, "copy_utf", "Copy Unicode")
-        updateActionButton(session, "copy_html", "Copy HTML")
-        updateActionButton(session, "copy_gliph", "Copy Emoji")
+    shiny::observeEvent(input$emojis_rows_selected, {
+      if (!shiny::isTruthy(input$emojis_rows_selected)) {
+        shiny::updateActionButton(session, "copy_name", "Copy :emoji_name:")
+        shiny::updateActionButton(session, "copy_utf", "Copy Unicode")
+        shiny::updateActionButton(session, "copy_html", "Copy HTML")
+        shiny::updateActionButton(session, "copy_gliph", "Copy Emoji")
       } else {
-        updateActionButton(session, "copy_name", paste0("Copy <code>", this_emoji_name(), "</code>"))
-        updateActionButton(session, "copy_utf", paste("Copy Unicode: <code>", truncate(this_emoji_uni()), "</code>"))
-        updateActionButton(session, "copy_html", paste("Copy HTML: <code>", escape_html(truncate(this_emoji_html())), "</code>"))
-        updateActionButton(session, "copy_gliph", paste("Copy", this_emoji()$emoji))
+        shiny::updateActionButton(session, "copy_name", paste0("Copy <code>", this_emoji_name(), "</code>"))
+        shiny::updateActionButton(session, "copy_utf", paste("Copy Unicode: <code>", truncate(this_emoji_uni()), "</code>"))
+        shiny::updateActionButton(session, "copy_html", paste("Copy HTML: <code>", escape_html(truncate(this_emoji_html())), "</code>"))
+        shiny::updateActionButton(session, "copy_gliph", paste("Copy", this_emoji()$emoji))
       }
     })
     copy_modal <- function(text) {
-      showModal(
-        modalDialog(
+      shiny::showModal(
+        shiny::modalDialog(
           title = "Select and Copy",
-          tags$p("I don't have access to your clipboard. Select the text and", tags$kbd("Ctrl/Cmd"), "+", tags$kbd("c"), "to copy."),
-          tags$pre(text),
+          shiny::tags$p("I don't have access to your clipboard. Select the text and", shiny::tags$kbd("Ctrl/Cmd"), "+", shiny::tags$kbd("c"), "to copy."),
+          shiny::tags$pre(text),
           easyClose = TRUE
         )
       )
     }
-    observeEvent(input$copy_name, {
+    shiny::observeEvent(input$copy_name, {
       if (clipout) clipr::write_clip(this_emoji_name()) else copy_modal(this_emoji_name())
     })
-    observeEvent(input$copy_utf, {
+    shiny::observeEvent(input$copy_utf, {
       if (clipout) clipr::write_clip(this_emoji_uni()) else copy_modal(this_emoji_uni())
     })
-    observeEvent(input$copy_html, {
+    shiny::observeEvent(input$copy_html, {
       if (clipout) clipr::write_clip(this_emoji_html()) else copy_modal(this_emoji_html())
     })
-    observeEvent(input$copy_gliph, {
+    shiny::observeEvent(input$copy_gliph, {
       if (clipout) clipr::write_clip(this_emoji()$emoji) else copy_modal(this_emoji()$emoji)
     })
-    observeEvent(input$done, {
-      stopApp(invisible())
+    shiny::observeEvent(input$done, {
+      shiny::stopApp(invisible())
     })
-    observeEvent(input$cancel, {
-      stopApp(invisible())
+    shiny::observeEvent(input$cancel, {
+      shiny::stopApp(invisible())
     })
   }
 }
