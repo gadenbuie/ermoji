@@ -2,3 +2,9 @@ Name: Search and Copy Emoji
 Description: Search for emoji and copy name, unicode, or gliph.
 Binding: ermoji_gadget
 Interactive: true
+
+Name: Pick and Insert Emoji
+Description: Insert emoji from picker
+Binding: emoji_picker
+Interactive: true
+
