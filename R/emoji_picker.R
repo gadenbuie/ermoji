@@ -129,7 +129,7 @@ emoji_picker_server <- function(quick_add = TRUE, document_id = NULL) {
         }
       )
       if (!is.null(emoji)) {
-        rstudioapi::insertText(emoji, id = document_id)
+        rstudioapi::insertText(text = emoji, id = document_id)
         if (isTRUE(quick_add)) {
           shiny::stopApp(invisible(input$emoji))
         }
