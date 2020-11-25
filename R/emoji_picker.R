@@ -138,18 +138,7 @@ emoji_picker_server <- function(quick_add = TRUE, context = NULL) {
         input$picker_type,
         "unicode" = input$emoji$emoji,
         "html" = input$emoji$html,
-        "emo_ji" = {
-          tryCatch({
-            emo::ji(input$emoji$name)
-            paste0('emo::ji("', input$emoji$name, '")')
-          },
-            error = function(e) {
-              session$sendCustomMessage("bad_emo_ji", input$emoji$name)
-              message("{emo} doesn't know the emoji ", shQuote(input$emoji$name))
-              NULL
-            }
-          )
-        }
+        "emo_ji" = try_emo_ji(input$emoji$name, session = session)
       )
       if (!is.null(emoji)) {
         rstudioapi::insertText(
@@ -163,4 +152,29 @@ emoji_picker_server <- function(quick_add = TRUE, context = NULL) {
       }
     })
   }
+}
+
+try_emo_ji <- function(name, session = shiny::getDefaultReactiveDomain()) {
+  emo_ji <- tryCatch({
+    emo::ji(input$emoji$name)
+    paste0('emo::ji("', input$emoji$name, '")')
+  },
+    error = function(e) {
+      NULL
+    }
+  )
+
+  if (!is.null(emo_ji)) return(emo_ji)
+
+  name_no_space <- gsub(" ", "_", name)
+  tryCatch({
+    emo::ji(name_no_space)
+    paste0('emo::ji("', name_no_space, '")')
+  },
+    error = function(e) {
+      session$sendCustomMessage("bad_emo_ji", name)
+      message("{emo} doesn't know the emoji ", shQuote(name))
+      NULL
+    }
+  )
 }
