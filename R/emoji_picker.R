@@ -120,6 +120,9 @@ emoji_picker_server <- function(quick_add = TRUE, context = NULL) {
   if (is.null(context)) {
     context <- rstudioapi::getActiveDocumentContext()
   }
+  initial_search <- if (nzchar(context$selection[[1]]$text)) {
+    context$selection[[1]]$text
+  }
   function(input, output, session) {
     shiny::observeEvent(input$close, {
       shiny::stopApp(invisible(input$emoji))
@@ -127,6 +130,7 @@ emoji_picker_server <- function(quick_add = TRUE, context = NULL) {
 
     shiny::observe({
       session$sendCustomMessage('update_picker_type', get_picker_type())
+      session$sendCustomMessage("search_emoji", initial_search)
     })
 
     shiny::observeEvent(input$picker_type, {

@@ -124,3 +124,15 @@ function showBadEmojiAlert(name) {
 }
 
 Shiny.addCustomMessageHandler('bad_emo_ji', showBadEmojiAlert)
+
+function searchEmoji(word) {
+  const searchInput = document.querySelector('input.emoji-picker__search')
+  searchInput.value = ''
+  word.split('').forEach(function(key) {
+    const keyEvent = new KeyboardEvent('keyup', {key})
+    searchInput.value += key
+    searchInput.dispatchEvent(keyEvent)
+  })
+}
+
+Shiny.addCustomMessageHandler('search_emoji', searchEmoji)
