@@ -32,13 +32,31 @@ emoji_picker_ui <- function() {
       get_picker_type()
     ),
     shiny::div(id = "emoji-picker", style = "width: 100%; min-height: 425; position: relative;"),
+    shiny::HTML('<div id="alert_bad_emo_ji" class="alert alert-danger" role="alert"><strong style="font-family: monospace">emo</strong> doesn\'t know the emoji <strong id="bad_emo_ji_name"></strong></div>'),
     rstudio_style(),
     shiny::tags$script(src = "eb/emoji-picker.js", type = "module"),
     shiny::tags$head(
       shiny::tags$script(src = 'eb/he.js'),
-      shiny::tags$style(
-        '.emoji-picker__plugin-container { justify-content: space-between; }
-        .emoji-picker { border-radius: 0 !important; }'
+      shiny::tags$style('
+.emoji-picker__plugin-container { justify-content: space-between; }
+.emoji-picker { border-radius: 0 !important; }
+
+#alert_bad_emo_ji {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  border-radius: 0;
+  transform: translateY(-100px);
+  transition: transform 0.5s ease-in;
+  text-align: center;
+}
+
+#alert_bad_emo_ji.show-bad-emo-ji {
+  transform: translateY(0);
+}
+'
       )
     )
   )
@@ -122,6 +140,7 @@ emoji_picker_server <- function(quick_add = TRUE, context = NULL) {
             paste0('emo::ji("', input$emoji$name, '")')
           },
             error = function(e) {
+              session$sendCustomMessage("bad_emo_ji", input$emoji$name)
               message("{emo} doesn't know the emoji ", shQuote(input$emoji$name))
               NULL
             }
