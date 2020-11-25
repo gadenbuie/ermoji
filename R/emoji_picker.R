@@ -94,9 +94,9 @@ get_picker_type <- function() {
   style
 }
 
-emoji_picker_server <- function(quick_add = TRUE, document_id = NULL) {
-  if (is.null(document_id)) {
-    document_id <- rstudioapi::getActiveDocumentContext()$id
+emoji_picker_server <- function(quick_add = TRUE, context = NULL) {
+  if (is.null(context)) {
+    context <- rstudioapi::getActiveDocumentContext()
   }
   function(input, output, session) {
     shiny::observeEvent(input$close, {
@@ -129,7 +129,11 @@ emoji_picker_server <- function(quick_add = TRUE, document_id = NULL) {
         }
       )
       if (!is.null(emoji)) {
-        rstudioapi::insertText(text = emoji, id = document_id)
+        rstudioapi::insertText(
+          location = Map(function(x) x$range, context$selection),
+          text = emoji,
+          id = context$id
+        )
         if (isTRUE(quick_add)) {
           shiny::stopApp(invisible(input$emoji))
         }
