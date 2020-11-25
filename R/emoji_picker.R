@@ -56,6 +56,10 @@ emoji_picker_ui <- function() {
 #alert_bad_emo_ji.show-bad-emo-ji {
   transform: translateY(0);
 }
+
+#bad_emo_ji_name {
+  white-space: nowrap;
+}
 '
       )
     )
