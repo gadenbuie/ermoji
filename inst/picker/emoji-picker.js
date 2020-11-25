@@ -106,3 +106,21 @@ pickerInput.addEventListener('change', reportPickerType)
 $().on('shiny:sessioninitialized', reportPickerType)
 
 Shiny.addCustomMessageHandler('update_picker_type', updatePickerType)
+
+const badEmojiAlert = document.getElementById('alert_bad_emo_ji')
+let hideAlertTimer = null
+
+function hideBadEmojiAlert() {
+  badEmojiAlert.classList.remove('show-bad-emo-ji')
+}
+
+function showBadEmojiAlert(name) {
+  if (hideAlertTimer) {
+    clearTimeout(hideAlertTimer)
+  }
+  badEmojiAlert.classList.add('show-bad-emo-ji')
+  document.getElementById('bad_emo_ji_name').innerText = name
+  hideAlertTimer = setTimeout(hideBadEmojiAlert, 3000)
+}
+
+Shiny.addCustomMessageHandler('bad_emo_ji', showBadEmojiAlert)
