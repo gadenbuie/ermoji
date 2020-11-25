@@ -12,6 +12,7 @@ Imports:
     DT,
     emo,
     miniUI,
+    rstudioapi,
     shiny
 Remotes: 
     hadley/emo
