@@ -160,8 +160,8 @@ emoji_picker_server <- function(quick_add = TRUE, context = NULL) {
 
 try_emo_ji <- function(name, session = shiny::getDefaultReactiveDomain()) {
   emo_ji <- tryCatch({
-    emo::ji(input$emoji$name)
-    paste0('emo::ji("', input$emoji$name, '")')
+    emo::ji(name)
+    paste0('emo::ji("', name, '")')
   },
     error = function(e) {
       NULL
